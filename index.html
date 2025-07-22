@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PatternCraft Clone</title>
+  <link href="https://fonts.googleapis.com/css2?family=Carrois+Gothic+SC&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Carrois Gothic SC', sans-serif;
+      background: linear-gradient(to right, #667eea, #764ba2);
+      color: #333;
+      transition: background 0.5s;
+    }
+    header {
+      min-height: 50vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: white;
+      background: transparent;
+      padding: 3rem 1rem;
+    }
+    header h1 {
+      margin: 0 0 0.5rem;
+      font-size: 3.5rem;
+      font-weight: 700;
+    }
+    header p {
+      margin: 0;
+      font-size: 1.4rem;
+      font-weight: 400;
+    }
+    .filter-bar {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      padding: 1rem 2rem;
+      gap: 1rem;
+      background: transparent;
+      border: none;
+    }
+    .filter-btn {
+      padding: 0.75rem 1.6rem;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      backdrop-filter: blur(6px);
+      transition: all 0.3s ease;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .filter-btn.active,
+    .filter-btn:hover {
+      background: white;
+      color: #764ba2;
+      transform: scale(1.06);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 2rem;
+      padding: 2rem;
+      max-width: 1200px;
+      margin: auto;
+    }
+    .card {
+      background: white;
+      border-radius: 18px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s;
+    }
+    .card:hover {
+      transform: translateY(-6px);
+    }
+    .preview {
+      height: 180px;
+      background-size: cover;
+      background-position: center;
+    }
+    .card-buttons {
+      padding: 1rem;
+      display: flex;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+    .card-buttons button {
+      flex: 1;
+      padding: 0.7rem;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 15px;
+      background: white;
+      color: #764ba2;
+      border: 2px solid #764ba2;
+      transition: all 0.3s ease;
+    }
+    .card-buttons button:hover {
+      background: #764ba2;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <header id="banner">
+    <h1>SwatchLab</h1>
+    <p>Your curated lab of vibrant gradient patterns for every design style.</p>
+  </header>
+
+  <div class="filter-bar">
+    <button class="filter-btn active" data-group="all">All</button>
+    <button class="filter-btn" data-group="business">Business</button>
+    <button class="filter-btn" data-group="corporate">Corporate</button>
+    <button class="filter-btn" data-group="food">Food</button>
+    <button class="filter-btn" data-group="art">Art</button>
+    <button class="filter-btn" data-group="dashboards">Dashboards</button>
+  </div>
+
+  <div class="grid" id="patternGrid"></div>
+
+  <script>
+    const baseColors = ['#00c6ff', '#0072ff', '#434343', '#000000', '#f9d423', '#ff4e50', '#e66465', '#9198e5', '#ffffff', '#ccc', '#89f7fe', '#66a6ff', '#f2709c', '#ff9472', '#bdc3c7', '#2c3e50', '#ffecd2', '#fcb69f', '#0ba360', '#3cba92'];
+    const groups = ['business', 'corporate', 'food', 'art', 'dashboards'];
+    const patterns = [];
+
+    groups.forEach(group => {
+      for (let i = 0; i < 20; i++) {
+        const color1 = baseColors[Math.floor(Math.random() * baseColors.length)];
+        const color2 = baseColors[Math.floor(Math.random() * baseColors.length)];
+        const css = `linear-gradient(135deg, ${color1}, ${color2})`;
+        patterns.push({ group, css, name: `${group} Pattern ${i + 1}` });
+      }
+    });
+
+    const container = document.getElementById('patternGrid');
+    const banner = document.getElementById('banner');
+
+    function renderPatterns(filter = 'all') {
+      container.innerHTML = '';
+      const shuffled = [...patterns].sort((a, b) => {
+        if (a.group === 'food' && b.group !== 'food') return -1;
+        if (a.group !== 'food' && b.group === 'food') return 1;
+        return Math.random() - 0.5;
+      });
+
+      shuffled.forEach(p => {
+        if (filter === 'all' || p.group === filter) {
+          const card = document.createElement('div');
+          card.className = 'card';
+
+          const preview = document.createElement('div');
+          preview.className = 'preview';
+          preview.style.backgroundImage = p.css;
+
+          const buttons = document.createElement('div');
+          buttons.className = 'card-buttons';
+
+          const copyBtn = document.createElement('button');
+copyBtn.textContent = 'Copy';
+copyBtn.onclick = () => {
+  navigator.clipboard.writeText(`background-image: ${p.css};`);
+  copyBtn.textContent = 'Copied!';
+  setTimeout(() => {
+  copyBtn.textContent = 'Copy';
+}, 1200);
+          };
+
+          const previewBtn = document.createElement('button');
+          previewBtn.textContent = 'Preview';
+          previewBtn.onclick = () => {
+			  document.body.style.backgroundImage = p.css;
+			  document.body.style.background = p.css;
+			  banner.style.backgroundImage = p.css;
+			  banner.style.background = 'transparent';
+
+			  const match = p.css.match(/linear-gradient\\(135deg,\\s*(#[0-9a-fA-F]{6}),\\s*(#[0-9a-fA-F]{6})\\)/);
+if (match) {
+  const isLight = (hex) => {
+    const c = hex.replace('#', '');
+    const r = parseInt(c.substring(0, 2), 16);
+    const g = parseInt(c.substring(2, 4), 16);
+    const b = parseInt(c.substring(4, 6), 16);
+    return (r * 299 + g * 587 + b * 114) / 1000 > 180;
+  };
+  const lightBg = isLight(match[1]) && isLight(match[2]);
+  document.body.style.color = lightBg ? '#000' : '#fff';
+  banner.style.color = lightBg ? '#000' : '#fff';
+}
+
+	     	};
+
+
+
+          buttons.appendChild(copyBtn);
+          buttons.appendChild(previewBtn);
+
+          card.appendChild(preview);
+          card.appendChild(buttons);
+
+          container.appendChild(card);
+        }
+      });
+    }
+
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderPatterns(btn.getAttribute('data-group'));
+      });
+    });
+
+    renderPatterns();
+  </script>
+</body>
+</html>
