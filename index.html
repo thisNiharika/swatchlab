@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>PatternCraft Clone</title>
+  <title>SwatchLab - PatternCraft Clone</title>
   <link href="https://fonts.googleapis.com/css2?family=Carrois+Gothic+SC&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; }
@@ -11,7 +11,7 @@
       font-family: 'Carrois Gothic SC', sans-serif;
       background: linear-gradient(to right, #667eea, #764ba2);
       color: #333;
-      transition: background 0.5s;
+      transition: background 1.5s ease-in-out;
     }
     header {
       min-height: 50vh;
@@ -28,11 +28,13 @@
       margin: 0 0 0.5rem;
       font-size: 3.5rem;
       font-weight: 700;
+      letter-spacing: 1px;
     }
     header p {
       margin: 0;
       font-size: 1.4rem;
       font-weight: 400;
+      opacity: 0.9;
     }
     .filter-bar {
       display: flex;
@@ -40,8 +42,6 @@
       flex-wrap: wrap;
       padding: 1rem 2rem;
       gap: 1rem;
-      background: transparent;
-      border: none;
     }
     .filter-btn {
       padding: 0.75rem 1.6rem;
@@ -54,9 +54,6 @@
       backdrop-filter: blur(6px);
       transition: all 0.3s ease;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
     }
     .filter-btn.active,
     .filter-btn:hover {
@@ -131,6 +128,9 @@
 
   <div class="grid" id="patternGrid"></div>
 
+  <!-- Anime.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+
   <script>
     const baseColors = ['#00c6ff', '#0072ff', '#434343', '#000000', '#f9d423', '#ff4e50', '#e66465', '#9198e5', '#ffffff', '#ccc', '#89f7fe', '#66a6ff', '#f2709c', '#ff9472', '#bdc3c7', '#2c3e50', '#ffecd2', '#fcb69f', '#0ba360', '#3cba92'];
     const groups = ['business', 'corporate', 'food', 'art', 'dashboards'];
@@ -150,11 +150,7 @@
 
     function renderPatterns(filter = 'all') {
       container.innerHTML = '';
-      const shuffled = [...patterns].sort((a, b) => {
-        if (a.group === 'food' && b.group !== 'food') return -1;
-        if (a.group !== 'food' && b.group === 'food') return 1;
-        return Math.random() - 0.5;
-      });
+      const shuffled = [...patterns].sort(() => Math.random() - 0.5);
 
       shuffled.forEach(p => {
         if (filter === 'all' || p.group === filter) {
@@ -169,40 +165,46 @@
           buttons.className = 'card-buttons';
 
           const copyBtn = document.createElement('button');
-copyBtn.textContent = 'Copy';
-copyBtn.onclick = () => {
-  navigator.clipboard.writeText(`background-image: ${p.css};`);
-  copyBtn.textContent = 'Copied!';
-  setTimeout(() => {
-  copyBtn.textContent = 'Copy';
-}, 1200);
+          copyBtn.textContent = 'Copy';
+          copyBtn.onclick = () => {
+            navigator.clipboard.writeText(`background-image: ${p.css};`);
+            copyBtn.textContent = 'Copied!';
+            anime({
+              targets: copyBtn,
+              scale: [1, 1.2, 1],
+              duration: 500,
+              easing: 'easeInOutBack'
+            });
+            setTimeout(() => copyBtn.textContent = 'Copy', 1200);
           };
 
           const previewBtn = document.createElement('button');
           previewBtn.textContent = 'Preview';
           previewBtn.onclick = () => {
-			  document.body.style.backgroundImage = p.css;
-			  document.body.style.background = p.css;
-			  banner.style.backgroundImage = p.css;
-			  banner.style.background = 'transparent';
+            document.body.style.background = p.css;
+            banner.style.background = 'transparent';
 
-			  const match = p.css.match(/linear-gradient\\(135deg,\\s*(#[0-9a-fA-F]{6}),\\s*(#[0-9a-fA-F]{6})\\)/);
-if (match) {
-  const isLight = (hex) => {
-    const c = hex.replace('#', '');
-    const r = parseInt(c.substring(0, 2), 16);
-    const g = parseInt(c.substring(2, 4), 16);
-    const b = parseInt(c.substring(4, 6), 16);
-    return (r * 299 + g * 587 + b * 114) / 1000 > 180;
-  };
-  const lightBg = isLight(match[1]) && isLight(match[2]);
-  document.body.style.color = lightBg ? '#000' : '#fff';
-  banner.style.color = lightBg ? '#000' : '#fff';
-}
+            const match = p.css.match(/linear-gradient\\(135deg,\\s*(#[0-9a-fA-F]{6}),\\s*(#[0-9a-fA-F]{6})\\)/);
+            if (match) {
+              const isLight = hex => {
+                const c = hex.replace('#', '');
+                const r = parseInt(c.substring(0, 2), 16);
+                const g = parseInt(c.substring(2, 4), 16);
+                const b = parseInt(c.substring(4, 6), 16);
+                return (r * 299 + g * 587 + b * 114) / 1000 > 180;
+              };
+              const lightBg = isLight(match[1]) && isLight(match[2]);
+              document.body.style.color = lightBg ? '#000' : '#fff';
+              banner.style.color = lightBg ? '#000' : '#fff';
+            }
 
-	     	};
-
-
+            anime({
+              targets: previewBtn,
+              scale: [1, 1.2, 1],
+              duration: 500,
+              easing: 'easeInOutBack'
+            });
+          };
 
           buttons.appendChild(copyBtn);
           buttons.appendChild(previewBtn);
@@ -211,6 +213,15 @@ if (match) {
           card.appendChild(buttons);
 
           container.appendChild(card);
+
+          anime({
+            targets: card,
+            translateY: [30, 0],
+            opacity: [0, 1],
+            duration: 800,
+            easing: 'easeOutExpo',
+            delay: Math.random() * 300
+          });
         }
       });
     }
@@ -220,8 +231,34 @@ if (match) {
         document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         renderPatterns(btn.getAttribute('data-group'));
+
+        anime({
+          targets: btn,
+          translateY: [-10, 0],
+          scale: [0.9, 1],
+          duration: 500,
+          easing: 'easeOutElastic(1, .8)'
+        });
       });
     });
+
+    // Background Animation Loop
+    const backgrounds = [
+      'linear-gradient(to right, #667eea, #764ba2)',
+      'linear-gradient(to right, #ff6a00, #ee0979)',
+      'linear-gradient(to right, #43cea2, #185a9d)',
+      'linear-gradient(to right, #f7971e, #ffd200)'
+    ];
+    let bgIndex = 0;
+    setInterval(() => {
+      bgIndex = (bgIndex + 1) % backgrounds.length;
+      anime({
+        targets: document.body,
+        background: [backgrounds[bgIndex]],
+        duration: 3000,
+        easing: 'linear'
+      });
+    }, 10000);
 
     renderPatterns();
   </script>
